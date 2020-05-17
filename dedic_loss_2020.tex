@@ -14,9 +14,7 @@ Institute of Computer Science, Czech Academy of Sciences, Pod vodárenskou věž
 
 \end{abstract}
 
-
 \section{Introduction}
-
 
 \section{Multi-instance Learning and Clustering}
 
@@ -24,64 +22,7 @@ Institute of Computer Science, Czech Academy of Sciences, Pod vodárenskou věž
 
 \section{Investigated Loss Functions}\label{sec:loss-functions}
 
-In section \ref{sec:clustering-metrics}, a method for learning a representation \( \phi \) was shown. In order to learn the parameters of the representation, a clustering-loss function is required in the form
-\[ L_C : \mathcal{P}^M \left( \bar{\mathspace{X}} \right) \to \mathfield{R} \]
-In this section, three ways of constructing such a clustering-loss function are explored. First, an unsupervised method constructing a clustering loss-function is presented, followed by two supervised methods.
-
-
-\subsection{Contrastive Predictive Coding}
-Contrastive predictive coding (also referred to as \name{CPC}) is a technique first introduced by \cite{oord_representation_2019}. The method builds the model on the ideas from predictive coding (see \cite{elias_predictive_1955}), a technique from information theory. CPC is an approach to representing time series by modelling future data from the past. In order to do that, the model learns high-level representations of the data and discards noise in the data. The further in future the model predicts, the less shared information is available and thus the global structure needs to be inferred better.
-
-The core idea taken from CPC to this work is that of a loss function called the InfoNCE in the prior art. Given a set \( \mathset{X} = \left\{ x_1, \dots, x_N \right\} \) containing one positive sample from \( p \left( x_{t + k} \middle| c_t \right) \) and \( N - 1 \) negative samples from \( p \left( x_{t + k} \right) \) where \( c_t \) is a context provided by an autoregressive model summarizing latent representations up to the time point \( t \), the InfoNCE loss is as follows:
-\[ - \underset{\mathset{X}}{\mathbb{E}} \left[ \log f_k \left( x_{t + k}, c_t \right) - \log \sum_{x_j \in \mathset{X}} f_k \left( x_j, c_t \right) \right] \]
-
-The actual application is based on the following idea. If a bag is split into two parts, it is reasonable to expect that the representations of these two parts would be close to one another. On the other hand, if a random bag were to be drawn from the data (as a \textit{simple random sample with replacement}), it is reasonable to expect it to be relatively far from any actual bag present in the data. These assumptions can be proven correct by using the probabilistic formalism for MIL (see section \ref{sec:probabilistic-formalism}). Given that each bag \( B_k \) is viewed as a set of realizations of a probability distribution \( P_k \in \mathcal{P}^\mathspace{X} \), it follows that the two parts of the bag, \( B_k^{(1)} \) and \( B_k^{(2)} \), are sets of realizations from the same distribution \( P_k \) and therefore should be statistically indistinguishable. On the other hand, a randomly sampled bag \( B'_j \) does not share the same probability distribution.
-Using these assumptions, the following clustering loss is constructed:
-\[ \forall j \; B'_j \text{ is a bag of randomly sampled instances from } \mathspace{X} \]
-\begin{align*}
-	L_\mathrm{CPC} = &\log \left\lVert \phi \left( B_k^{(1)} \right) - \phi \left( B_k^{(2)} \right) \right\rVert^2 \\
-	- &\log \sum_{j = 1}^K \left\lVert \phi \left( B_k^{(1)} \right) - \phi \left( B'_j \right) \right\rVert^2
-\end{align*}
-The first term of the loss function depicts the notion that the representations of the two parts of the bag should be close to one another and corresponds to the first term of InfoNCE, which maximizes the prediction of a matching future sample from the current context. The second term depicts the notion that a random bag should be far from all the bags\footnote{On the off-chance a random bag would be close to \( B_k^{(1)} \), this would be outweighed by the other terms.} and corresponds to the second term of InfoNCE, which minimizes the prediction of a random sample from the current context. Choosing to only use the first part of the bag in the second term has no effect as the two parts are chosen randomly. The value \( K \in \mathfield{N} \) is a hyper-parameter of this method.
-
-This method can be further modified to make it less computationally complex. In order to not have to draw a lot of random bags, it can be reasonably expected that, on average, the representations of two parts of two mismatched bags \( B_{k_1}^{(1)} \) and \( B_{k_2}^{(2)} \) should be far apart. The matrix \( \mathmat{D} \) is constructed as
-\begin{equation}\label{eq:bag-distance-matrix}
-	\mathmat{D}_{ij} = \left\lVert \phi \left( B_i^{(1)} \right) - \phi \left( B_j^{(2)} \right) \right\rVert_2^2
-\end{equation}
-The distances of the corresponding halves are found on the diagonal of \( \mathmat{D} \), whereas the distances of mismatched halves are in the rest of the matrix. Under this assumption the final loss for the CPC method is
-\[ L_\mathrm{CPC} = \frac{1}{n} \sum_{i = 1}^n \left( \log \left( \mathmat{D}_{ii} \right) - \log \sum_{\substack{j = 1 \\ j \neq i}}^n \mathmat{D}_{ij} \right) \]
-where \( n \) is the number of bags.
-
-\subsection{Triplet Loss}
-
-The performance of the \( k \)-nearest neighbour algorithm depends heavily on the distance metric used. Typically, the Euclidean distance is used. However, ideally, the metric would adapt to the problem at hand. \cite{weinberger_distance_2006} present a way to learn a Mahalanobis distance metric for kNN such that it has the \textit{homogeneity} and \textit{separation} properties of clustering. This distance metric, the description of which follows, has been utilized in this work as the basis for the desired loss function \( L_C \).
-
-Let \( \left\{ \left( \mathvec{x}_i, y_i \right) \right\}_{i = 1}^n \) be a training dataset with \( \mathvec{x}_i \in \mathfield{R}^d \) and \( y_i \) discrete class labels. The goal is to learn a linear transformation
-\[ \mathvec{L} : \mathfield{R}^d \to \mathfield{R}^d \]
-This linear transformation is then used to compute squared distances as
-\[ \mathcal{D} \left( \mathvec{x}_i, \mathvec{x}_j \right) = \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert_2^2 \]
-
-A helper matrix \( \mathmat{y} \) is used such that
-\[ \mathmat{y}_{ij} = \begin{cases}
-	0 &\text{for} \quad y_i \neq y_j \\
-	1 &\text{for} \quad y_i = y_j \\
-\end{cases} \]
-In addition to this, for each input \( \mathvec{x}_i \), \( k \) target neighbours are defined that are supposed to be close to \( \mathvec{x}_i \). Euclidean distance may be used to find the target neighbours. A matrix \( \mathmat{\eta} \) is used to indicate target neighbours where \( \mathmat{\eta}_{ij} = 1 \) when \( \mathvec{x}_j \) is a target neighbour of \( \mathvec{x}_i \) and \( 0 \) otherwise.
-
-The cost function features two competing terms. The first term depicts the notion that an input should be close to its target neighbours. The second term depicts the notion that inputs of a different class should be far from one another. The loss is of the form
-\begin{align*}
-	&\sum_{i, j = 1}^n \mathmat{\eta}_{ij} \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert_2^2 + \\
-	&+ c \sum_{i, j, l = 1}^n \mathmat{\eta}_{ij} \left( 1 - \mathmat{y}_{il} \right) \left\{ \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_l \right) \right\rVert_2^2 - \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert_2^2 \right\}_+
-\end{align*}
-where \( c > 0 \) is a hyper-parameter of this method and \( \left\{ \cdot \right\}_+ \) is the hinge loss.
-
-In the original work, this loss is then reformulated as an instance of semidefinite programming, however, this has not been pursued in this work. Instead, to adapt the original method, the definitions need to be modified to leverage the bagging of the data. The matrix \( \mathmat{y} \) is defined in the same way, only with labels on the level of bags. The value \( \mathmat{\eta}_{ij} = 1 \) iff bag \( B_j \) is a target neighbour for the bag \( B_i \). Then, using the matrix \( \mathmat{D} \) defined in equation \ref{eq:bag-distance-matrix}, the loss function can be expressed as
-
-\[ L_\mathrm{triplet} = \sum_{ij} \eta_{ij} D_{ij} + c \sum_{ijl} \eta_{ij} \left( 1 - y_{il} \right) \left\{ D_{il} - D_{ij} \right\}_+ \]
-
-where \( c > 0 \) is a hyper-parameter of the method. Although \cite{weinberger_distance_2006} suggest finding \( \mathmat{\eta} \) as the \( k \)-nearest neighbours of a data point, in this work, the loss has been simplified by setting \( \mathmat{\eta}_{ij} = \mathmat{y}_{ij} \).
-
-\subsection{Magnet Loss}
+\input{loss-functions.tex}
 
 \section{Experimental Comparison}\label{sec:experimental-comparison}
 
