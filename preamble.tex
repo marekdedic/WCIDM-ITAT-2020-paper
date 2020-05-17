@@ -1,0 +1,34 @@
+\documentclass[a4paper]{itatnew}
+
+\usepackage{polyglossia} % Must be before biblatex
+
+\usepackage[centertags, intlimits]{amsmath}
+\usepackage{amssymb}
+\usepackage[backend=biber,style=draft,sortlocale=en_US,bibencoding=UTF8]{biblatex}
+\usepackage{bm}
+\usepackage{csquotes}
+\usepackage[inline, shortlabels]{enumitem}
+\usepackage{fontspec}
+\usepackage{hyperref}
+\usepackage{subcaption}
+\usepackage{url}
+
+\setmainfont{TeX Gyre Termes}
+\setdefaultlanguage{english}
+
+\hypersetup{
+	pdfencoding=auto,
+	unicode=true,
+	bookmarksopen=true,
+	bookmarksopenlevel=3
+}
+
+\newcommand{\name}[1]{\textbf{#1}}
+\newcommand{\mathfield}{\ensuremath{\mathbb}}
+\newcommand{\mathmat}{\ensuremath{\mathbf}}
+\newcommand{\mathset}{\ensuremath{\mathbb}}
+\newcommand{\mathspace}{\ensuremath{\mathcal}}
+\newcommand{\mathvec}{\ensuremath{\bm}}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}

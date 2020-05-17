@@ -1,36 +1,4 @@
-\documentclass[a4paper]{itatnew}
-
-\usepackage{polyglossia}
-\usepackage{fontspec}
-\usepackage{csquotes}
-\usepackage[centertags]{amsmath}
-\usepackage{amssymb}
-\usepackage{bm}
-\usepackage{url}
-\usepackage[backend=biber,style=draft,sortlocale=en_US,bibencoding=UTF8]{biblatex}
-\usepackage{hyperref}
-\usepackage[inline, shortlabels]{enumitem}
-\usepackage{subcaption}
-
-\setmainfont{TeX Gyre Termes}
-\setdefaultlanguage{english}
-
-\hypersetup{
-	pdfencoding=auto,
-	unicode=true,
-	bookmarksopen=true,
-	bookmarksopenlevel=3
-}
-
-\newcommand{\name}[1]{\textbf{#1}}
-\newcommand{\mathfield}{\ensuremath{\mathbb}}
-\newcommand{\mathmat}{\ensuremath{\mathbf}}
-\newcommand{\mathset}{\ensuremath{\mathbb}}
-\newcommand{\mathspace}{\ensuremath{\mathcal}}
-\newcommand{\mathvec}{\ensuremath{\bm}}
-
-\DeclareMathOperator*{\argmin}{arg\,min}
-\DeclareMathOperator*{\argmax}{arg\,max}
+\input{preamble.tex}
 
 \title{Loss Functions for Clustering in Multi-instance Learning}
 \author{Marek Dědič\inst{1,2}, Lukáš Bajer\inst{2}, Martin Holeňa\inst{3}}
