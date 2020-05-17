@@ -1,0 +1,100 @@
+\RequirePackage{luatex85}
+\documentclass[tikz]{standalone}
+
+\usepackage{polyglossia}
+\usepackage{fontspec}
+\usepackage{csquotes}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.15}
+
+\setdefaultlanguage{english}
+\setmainfont{TeX Gyre Termes}
+
+\begin{document}
+
+\begin{tikzpicture}
+	%\draw (-1, 0.5) node[anchor=north] {http://\textcolor{red}{evil}.\textcolor{red}{com}/\textcolor{violet}{path}/\textcolor{violet}{file}?\textcolor{blue}{key=val}\&\textcolor{blue}{get=exploit.js}};
+	\draw (-3.0, -0.1) node[anchor=north] {\textit{\scriptsize designed token features}};
+	\draw (0.0, -0.1) node[anchor=north] {\textit{\scriptsize learned features of URL parts}};
+	\draw (3.25, -0.1) node[anchor=north] {\textit{\scriptsize learned features of an URL}};
+	\draw (6.4, -0.1) node[anchor=north] {\textit{\scriptsize learned features of a SLD}};
+	\draw (9.75, -0.1) node[anchor=north] {\textit{\scriptsize learned features of a user}};
+
+	\def\boxX{-4.7}
+	\foreach \y / \text / \marker / \ind in {0/\textcolor{red}{evil}/d/1, -0.8/\textcolor{red}{com}/d/2, -1.9/\textcolor{violet}{path}/p/1, -2.7/\textcolor{violet}{file}/p/2}
+	{
+		\draw (\boxX, \y - 1.15) node[anchor=east] {\text};
+		\draw (\boxX + 1.7, \y - 1) node[anchor=south] {\scriptsize \text};
+		\draw[->] (\boxX + 0.1, \y - 1.15) -- node[above] {\scriptsize \( \psi \)} ++ (0.4, 0);
+		\draw (\boxX + 0.7, \y - 1) rectangle ++(2, -0.35) node[pos=0.5] {\scriptsize \( \marker^{(\ind)}_1 \dots \marker^{(\ind)}_n \)};
+	}
+
+	\def\boxX{-8}
+	\foreach \y / \text / \marker / \ind in {-3.6/\textcolor{blue}{key}/k/1, -4.4/\textcolor{blue}{val}/v/1, -5.2/\textcolor{blue}{get}/k/2, -6/\textcolor{blue}{exploit.js}/v/2}
+	{
+		\draw (\boxX, \y - 1.15) node[anchor=east] {\text};
+		\draw (\boxX + 1.7, \y - 1) node[anchor=south] {\scriptsize \text};
+		\draw[->] (\boxX + 0.1, \y - 1.15) -- node[above] {\scriptsize \( \psi \)} ++ (0.4, 0);
+		\draw (\boxX + 0.7, \y - 1) rectangle ++(2, -0.35) node[pos=0.5] {\scriptsize \( \marker^{(\ind)}_1 \dots \marker^{(\ind)}_n \)};
+	}
+	\foreach \y / \text / \ind in {-5.75/\textcolor{blue}{key=val}/1, -7.35/\textcolor{blue}{get=exploit.js}/2}
+	{
+		\draw[decoration={brace,mirror,raise=5pt},decorate] (\boxX + 2.8, \y) -- ++(0, 1.15);
+		\draw (\boxX + 5, \y + 0.75) node[anchor=south] {\scriptsize \text};
+		\draw[->] (\boxX + 3.3, \y + 0.575) -- node[above] {\scriptsize \( \phi_{KV} \)} ++ (0.4, 0);
+		\draw (\boxX + 4, \y + 0.75) rectangle ++(2, -0.35) node[pos=0.5] {\scriptsize \( q^{(\ind)}_1 \dots q^{(\ind)}_n \)};
+	}
+	
+	\def\boxX{-1.9}
+	\foreach \y / \height in {-2.15/1.15, -4.05/1.15, -6.95/1.95}
+	{
+		\draw[decoration={brace,mirror,raise=5pt},decorate] (\boxX, \y) -- ++(0, \height);
+	}
+	
+	\def\boxX{-1.5}
+	\foreach \y / \marker / \opMarker / \text in {-1.575/d/D/\textcolor{red}{evil.com}, -3.475/p/P/\textcolor{violet}{path/file}, -5.975/q/Q/\textcolor{blue}{key=val\&get=exploit.js}}
+	{
+		\draw[->] (\boxX, \y) -- node[above] {\scriptsize \( \phi_\opMarker \)} ++ (0.4, 0);
+		\draw (\boxX + 1.55, \y + 0.25) node[anchor=south] {\scriptsize \text};
+		\draw (\boxX + 0.6, \y + 0.175) rectangle ++(2, -0.35) node[pos=0.5] {\scriptsize \( \marker_1 \dots \marker_n \)};
+	}
+	
+	\draw[decoration={brace,mirror,raise=5pt},decorate] (1.2, -6.15) -- ++(0, 4.75);
+	\draw[->] (1.6, -3.775) -- node[above] {\scriptsize \( \phi_U \)} ++ (0.4, 0);
+	\draw (4.6, -3.1) node[anchor=south] {\scriptsize http://\textcolor{red}{evil}.\textcolor{red}{com}/\textcolor{violet}{path}/\textcolor{violet}{file}?\textcolor{blue}{key=val}\&\textcolor{blue}{get=exploit.js}};
+	\draw[->] (3.6, -3.1) to[out=200,in=90] (3.2, -3.45);
+	\draw (2.2, -3.6) rectangle ++(2, -0.35) node[pos=0.5] {\scriptsize \( u^{(1)}_1 \dots u^{(1)}_{3n} \)};
+	
+	\def\boxY{-8.2}
+	\foreach \y / \ind / \url in {0/2/\textcolor{olive}{bbc.co.uk/index.html}, -0.9/3/\textcolor{olive}{bbc.co.uk/favicon.ico}, -1.8/4/\textcolor{olive}{bbc.co.uk/images/banner.jpg}, -2.9/5/\textcolor{magenta}{adnxs.com/a.gif}, -3.8/6/\textcolor{magenta}{adnxs.com/b.gif}}
+	{
+		\draw (-4.7, \y + \boxY) node[anchor=east] {\url};
+		\draw[->] (-4.6, \y + \boxY) -- node {} ++ (2.95, 0);
+		\draw (-1.55, \y +\boxY) node[anchor=west] {\dots};
+		\draw[->] (-0.95, \y +\boxY) -- node {} ++ (2.95, 0);
+		\draw (4.5, \y + \boxY + 0.35) node[anchor=east] {\scriptsize \url};
+		\draw (2.2, \y + \boxY + 0.175) rectangle ++(2, -0.35) node[pos=0.5] {\scriptsize \( u^{(\ind)}_1 \dots u^{(\ind)}_l \)};
+	}
+	
+	\def\boxY{-3.95}
+	\foreach \ystart / \height in {0/0.35, -6.2/2.1, -8.225/1.25}
+	{
+		\draw[decoration={brace,mirror,raise=5pt},decorate] (4.3, \ystart + \boxY) -- ++(0, \height);
+	}
+	
+	\def\boxY{-3.775}
+	\foreach \y / \text/ \ind in {0/evil.com/1, -5.325/co.uk/2, -7.775/adnxs.com/3}
+	{
+		\draw[->] (4.75, \y + \boxY) -- node[above] {\scriptsize \( \phi_{SLD} \)} ++ (0.4, 0);
+		\draw (6.3, \y + \boxY + 0.2) node[anchor=south] {\scriptsize \text};
+		\draw (5.4, \y + \boxY + 0.175) rectangle ++(2, -0.35) node[pos=0.5] {\scriptsize \( s^{(\ind)}_1 \dots s^{(\ind)}_k \)};
+	}
+	
+	\draw[decoration={brace,mirror,raise=5pt},decorate] (7.5, -11.725) -- ++(0, 8.1);
+	\draw[->] (8.0, -7.675) -- node[above] {\scriptsize \( \phi_{user} \)} ++ (0.4, 0);
+	\draw (8.7, -7.5) rectangle ++(2, -0.35) node[pos=0.5] {\scriptsize \( x_1 \dots x_p \)};
+	\draw[->] (10.9, -7.675) -- node[above] {\scriptsize \( f \)} ++ (0.4, 0);
+	\draw (11.6, -7.45) node[anchor=north] {\( y \)};
+\end{tikzpicture}
+
+\end{document}
