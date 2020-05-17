@@ -2,7 +2,6 @@ In section \ref{sec:clustering-metrics}, a method for learning a representation 
 \[ L_C : \mathcal{P}^M \left( \bar{\mathspace{X}} \right) \to \mathfield{R} \]
 In this section, three ways of constructing such a clustering-loss function are explored. First, an unsupervised method constructing a clustering loss-function is presented, followed by two supervised methods.
 
-
 \subsection{Contrastive Predictive Coding}
 Contrastive predictive coding (also referred to as \name{CPC}) is a technique first introduced by \cite{oord_representation_2019}. The method builds the model on the ideas from predictive coding (see \cite{elias_predictive_1955}), a technique from information theory. CPC is an approach to representing time series by modelling future data from the past. In order to do that, the model learns high-level representations of the data and discards noise in the data. The further in future the model predicts, the less shared information is available and thus the global structure needs to be inferred better.
 
@@ -27,7 +26,6 @@ The distances of the corresponding halves are found on the diagonal of \( \mathm
 where \( n \) is the number of bags.
 
 \subsection{Triplet Loss}
-
 The performance of the \( k \)-nearest neighbour algorithm depends heavily on the distance metric used. Typically, the Euclidean distance is used. However, ideally, the metric would adapt to the problem at hand. \cite{weinberger_distance_2006} present a way to learn a Mahalanobis distance metric for kNN such that it has the \textit{homogeneity} and \textit{separation} properties of clustering. This distance metric, the description of which follows, has been utilized in this work as the basis for the desired loss function \( L_C \).
 
 Let \( \left\{ \left( \mathvec{x}_i, y_i \right) \right\}_{i = 1}^n \) be a training dataset with \( \mathvec{x}_i \in \mathfield{R}^d \) and \( y_i \) discrete class labels. The goal is to learn a linear transformation
