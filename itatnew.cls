@@ -32,7 +32,7 @@
 \RequirePackage{url}
 \RequirePackage{hyperref}
 \RequirePackage{graphicx}
-\RequirePackage{mathptmx}
+%\RequirePackage{mathptmx}
 \RequirePackage{listings}
 \RequirePackage{latexsym}
 \RequirePackage{amsthm}
