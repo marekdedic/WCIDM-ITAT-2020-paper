@@ -25,6 +25,8 @@ The distances of the corresponding halves are found on the diagonal of \( \mathm
 \[ L_\mathrm{CPC} = \frac{1}{n} \sum_{i = 1}^n \left( \log \left( \mathmat{D}_{ii} \right) - \log \sum_{\substack{j = 1 \\ j \neq i}}^n \mathmat{D}_{ij} \right) \]
 where \( n \) is the number of bags.
 
+Out of the three methods presented in this section, the approach based on contrastive predictive coding seems the most promising, as it is the only unsupervised method and could therefore be used in a broader class of applications. This, however, also has its drawbacks -- unsupervised methods are generally harder to learn correctly. For that reason, the two supervised methods were selected as a safer option.
+
 \subsection{Triplet Loss}
 The performance of the \( k \)-nearest neighbour algorithm depends heavily on the distance metric used. Typically, the Euclidean distance is used. However, ideally, the metric would adapt to the problem at hand. \cite{weinberger_distance_2006} present a way to learn a Mahalanobis distance metric for kNN such that it has the \textit{homogeneity} and \textit{separation} properties of clustering. This distance metric, the description of which follows, has been utilized in this work as the basis for the desired loss function \( L_C \).
 
@@ -42,8 +44,9 @@ In addition to this, for each input \( \mathvec{x}_i \), \( k \) target neighbou
 
 The cost function features two competing terms. The first term depicts the notion that an input should be close to its target neighbours. The second term depicts the notion that inputs of a different class should be far from one another. The loss is of the form
 \begin{align*}
-	&\sum_{i, j = 1}^n \mathmat{\eta}_{ij} \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert_2^2 + \\
-	&+ c \sum_{i, j, l = 1}^n \mathmat{\eta}_{ij} \left( 1 - \mathmat{y}_{il} \right) \left\{ \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_l \right) \right\rVert_2^2 - \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert_2^2 \right\}_+
+	\sum_{i, j = 1}^n &\mathmat{\eta}_{ij} \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert_2^2 + \\
+	+ c \sum_{i, j, l = 1}^n  &\mathmat{\eta}_{ij} \left( 1 - \mathmat{y}_{il} \right) \\
+	&\left\{ \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_l \right) \right\rVert_2^2 - \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert_2^2 \right\}_+
 \end{align*}
 where \( c > 0 \) is a hyper-parameter of this method and \( \left\{ \cdot \right\}_+ \) is the hinge loss.
 
@@ -54,3 +57,32 @@ In the original work, this loss is then reformulated as an instance of semidefin
 where \( c > 0 \) is a hyper-parameter of the method. Although \cite{weinberger_distance_2006} suggest finding \( \mathmat{\eta} \) as the \( k \)-nearest neighbours of a data point, in this work, the loss has been simplified by setting \( \mathmat{\eta}_{ij} = \mathmat{y}_{ij} \).
 
 \subsection{Magnet Loss}
+Magnet loss is an enhancement of the previously described triplet loss, first introduced by \cite{rippel_metric_2015}. The idea of magnet loss builds upon triplet loss. In the case of triplet, the loss function essentially goes over all triplets of a data point, its target neighbour and a point from a different class and optimizes their distances (hence the name "triplet loss"). Magnet loss instead maintains an explicit model of the distributions of different classes in the representation space. To capture the distributions, the model uses simple clustering models for each class. In the case of the triplet loss, the target neighbourhood is set \textit{a priori} and in the original input space -- but using distances in the original input space is exactly what triplet loss and magnet loss aim to circumvent. To this end, magnet loss uses similarity in the space of representations and updates it periodically. Magnet loss also pursues local separation instead of a global one -- representations of different classes should be separated, but can be interleaved.
+
+Let \( \left\{ \left( \mathvec{x}_i, y_i \right) \right\}_{i = 1}^n \) be a training dataset with inputs \( \mathvec{x}_i \in \mathfield{R}^d \) and \( y_i \) being \( C \) discrete class labels. A general parameterized map \( \mathvec{f} \left( \cdot; \Theta \right) \) embeds the inputs into a representation space:
+\[ \mathvec{r}_i = \mathvec{f} \left( \mathvec{x}_i; \Theta \right) \]
+For each class \( c \), \( K \) cluster assignments are obtained by using the K-means++ algorithm (see \cite{macqueen_methods_1967} and \cite{arthur_k-means++:_2007}) where \( K \in \mathfield{N} \) is a hyper-parameter of the method:
+\[ \mathcal{I}_1^c, \dots, \mathcal{I}_K^c = \argmin_{I_1^c, \dots, I_K^c} \sum_{k = 1}^K \sum_{\mathvec{r} \in I_k^c} \left\lVert \mathvec{r} - \frac{1}{\left\lvert I_k^c \right\rvert} \sum_{\mathvec{r} \in I_k^c} \mathvec{r} \right\rVert_2^2  \]
+the centre of each cluster\footnote{\cite{rippel_metric_2015} incorrectly uses \( \mathvec{\mu}_k^c \) as the centre of both \( \mathcal{I}_k^c \) as well as the intermediary cluster \( I_k^c \).} is denoted \( \mathvec{\mu}_k^c \):
+\[ \mathvec{\mu}_k^c = \frac{1}{\left\lvert \mathcal{I}_k^c \right\rvert} \sum_{\mathvec{r} \in \mathcal{I}_k^c} \mathvec{r} \]
+For each input, the centre of the cluster in which its representation falls is denoted as
+\[ \mathvec{\mu} \left( \mathvec{r} \right) = \argmin_{\mathvec{\mu_k^c}} \left\lVert \mathvec{r} - \mathvec{\mu}_k^c \right\rVert \]
+and the distance of its representation from the centre of the cluster is denoted as
+\[ N_i = \left\lVert \mathvec{r}_i - \mu \left( \mathvec{r}_i \right) \right\rVert_2^2 \]
+The variance of the distance of all the representations from their respective centres can then be calculated as
+\[ \sigma^2 = \frac{1}{n - 1} \sum_{i = 1}^n N_i \]
+For each input, the distance to all the inputs of a different class is calculated as
+\[ M_i = \sum_{c \neq y_i} \sum_{k = 1}^K \exp \left( - \frac{1}{2 \sigma^2} \left\lVert \mathvec{r}_i - \mathvec{\mu}_k^c \right\rVert_2^2 \right) \]
+The magnet loss is then
+\[ L_\mathrm{magnet} = \frac{1}{n} \sum_{i = 1}^n \left\{ - \log \frac{\exp \left( - \frac{1}{2 \sigma^2} N_i - \alpha \right)}{M_i} \right\}_+ \]
+where \( \alpha \in \mathfield{R} \) is a hyper-parameter of the method, which has the meaning of the desired cluster separation gap with respect to the variance.
+
+This loss function is made computationally less expensive by only sampling a certain amount of clusters for a class, then sampling a certain amount of inputs in each cluster. The rest of the data then isn't considered. This optimization is nontrivial and is further described in \cite{rippel_metric_2015}, but wasn't used in this work.
+
+The magnet loss is taken almost verbatim from the original article. The only change needed is a different way to obtain the representation space by taking
+\[ \mathvec{r}_i = \phi \left( B_i \right) \]
+In this usage, \( y_i \) is the class label assigned to the bag \( B_i \) (making magnet loss a supervised method), \( n \) is the number of bags in the dataset and \( K \in \mathfield{N} \) and \( \alpha \in \mathfield{R} \) are hyper-parameters of the method.
+
+The choice of the hyper-parameter \( K \) is non-obvious for most problems. Due to this, alternative methods for obtaining the cluster index which would not need hyper-parameter tuning were explored. One such method, \name{self-tuning spectral clustering} (see \cite{zelnik-manor_self-tuning_2005}) was implemented as a replacement for the K-means algorithm used in the original method. Section \ref{sec:experiment-comparison} presents a comparison of the performance of these two methods.
+
+Since magnet loss is an enhancement of triplet loss, it is reasonable to assume it would perform the same or better than triplet loss. One drawback of magnet loss is the higher number of hyper-parameters which need to be tuned in order for the method to work correctly. This problem is partially solved by the introduction of self-tuning spectral clustering.
