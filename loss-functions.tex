@@ -5,8 +5,11 @@ In this section, three ways of constructing such a clustering-loss function are 
 \subsection{Contrastive Predictive Coding}
 Contrastive predictive coding (\name{CPC}) is a technique first introduced by \cite{oord_representation_2019}. The method builds the model on the ideas from predictive coding \cite{elias_predictive_1955}. CPC represents time series by modelling future data from the past. To this end, the model learns high-level representations of the data and discards noise. The further in the future the model predicts, the less shared information is available and thus the global structure needs to be inferred better.
 
-The core concept taken from CPC is a loss function called InfoNCE in the prior art. Given a set \( \mathset{X} = \left\{ x_1, \dots, x_N \right\} \) containing one positive example sampled from \( p \left( x_{t + k} \middle| c_t \right) \) and \( N - 1 \) negative  examples sampled from \( p \left( x_{t + k} \right) \) where \( c_t \) is a context provided by an autoregressive model summarizing latent representations up to the time point \( t \), the InfoNCE loss is defined as
+The core concept taken from CPC is a loss function called InfoNCE in the prior art. Given a time series of values \( x_t \), an autoregressive model produces a context \( c_t \) from all \( x_i \) up to the point \( t \). For a predicted future value \( x_{t + k} \), the current context \( c_t \), and a model \( f_k \), the InfoNCE loss is defined as
 \[ - \underset{\mathset{X}}{\mathbb{E}} \left[ \log f_k \left( x_{t + k}, c_t \right) - \log \sum_{x_j \in \mathset{X}} f_k \left( x_j, c_t \right) \right] \]
+Optimizing this	value will result in \( f_k \) modelling the density ratio
+\[ f_k \left( x_{t + k}, c_t \right) \propto \frac{p \left( x_{t + k} \middle| c_t \right)}{p \left( x_{t + k} \right)} \]
+and therefore in maximizing the mutual information between \( x_{t + k} \) and \( c_t \).
 
 The actual application to MIL is based on the following idea. If a bag is split into two parts, it is reasonable to expect that the representations of these two parts would be close to one another. On the other hand, if a random bag were to be drawn from the data (as a \textit{simple random sample with replacement}), it is reasonable to expect it to be relatively far from any actual bag present in the data. These assumptions can be proven correct by using the probabilistic formalism for MIL (see subsection \ref{sec:probabilistic-formalism}). Given that each bag \( B_k \) is viewed as a set of realizations of a probability distribution \( P_k \in \mathcal{P}^\mathspace{X} \), it follows that the two parts of the bag, \( B_k^{(1)} \) and \( B_k^{(2)} \), are sets of realizations from the same distribution \( P_k \) and therefore should be statistically indistinguishable. On the other hand, a randomly sampled bag \( B'_j \) does not share the same probability distribution.
 Using these assumptions, the following clustering loss is constructed:
@@ -43,15 +46,17 @@ In addition to this, for each input \( \mathvec{x}_i \), \( k \) target neighbou
 
 The cost function features two competing terms. The first term depicts the notion that an input should be close to its target neighbours. The second term depicts the notion that inputs of a different class should be far from one another. The loss is of the form
 \begin{align*}
-	\sum_{i, j = 1}^n &\mathmat{\eta}_{ij} \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert^2 + \\
-	+ c \sum_{i, j, l = 1}^n  &\mathmat{\eta}_{ij} \left( 1 - \mathmat{y}_{il} \right) \\
-	&\left\{ \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_l \right) \right\rVert^2 - \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert^2 \right\}_+
+	&\sum_{i, j = 1}^n \mathmat{\eta}_{ij} \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert^2 + c \sum_{i, j, l = 1}^n \mathmat{\eta}_{ij} \left( 1 - \mathmat{y}_{il} \right) \\
+	&\max \left( 0, 1 + \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert^2 - \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_l \right) \right\rVert^2 \right)
 \end{align*}
-where \( c > 0 \) is a hyper-parameter of this method and \( \left\{ \cdot \right\}_+ \) is the hinge loss.
+where \( c > 0 \) is a hyper-parameter of this method.
 
 To adapt the original method, the definitions need to be modified to leverage the bagging of the data. The matrix \( \mathmat{y} \) is defined in the same way, only with labels on the level of bags. The value \( \mathmat{\eta}_{ij} = 1 \) iff bag \( B_j \) is a target neighbour for the bag \( B_i \). Then, using the matrix \( \mathmat{D} \) defined in equation \ref{eq:bag-distance-matrix} directly instead of the linear transformation, the loss function can be expressed as
 
-\[ L_\mathrm{triplet} = \sum_{ij} \eta_{ij} D_{ij} + c \sum_{ijl} \eta_{ij} \left( 1 - y_{il} \right) \left\{ D_{il} - D_{ij} \right\}_+ \]
+\begin{align*}
+	L_\mathrm{triplet} = &\sum_{ij} \eta_{ij} D_{ij} + \\
+	+ c &\sum_{ijl} \eta_{ij} \left( 1 - y_{il} \right) \max \left( 0, 1 + D_{ij} - D_{il} \right)
+\end{align*}
 where \( c > 0 \) is again a hyper-parameter of the method. Although \cite{weinberger_distance_2006} suggest finding \( \mathmat{\eta} \) as the \( k \)-nearest neighbours of a data point, in this work, the loss has been simplified by setting \( \mathmat{\eta}_{ij} = \mathmat{y}_{ij} \).
 
 \subsection{Magnet Loss}
@@ -72,7 +77,7 @@ The variance of the distance of the representations from their respective centre
 For \( r_i \), the dissimilarity to all the inputs of different classes is calculated as
 \[ M_i = \sum_{c \neq y_i} \sum_{k = 1}^K \exp \left( - \frac{1}{2 \sigma^2} \left\lVert \mathvec{r}_i - \mathvec{\mu}_k^c \right\rVert^2 \right) \]
 The magnet loss is then
-\[ L_\mathrm{magnet} = \frac{1}{n} \sum_{i = 1}^n \left\{ - \log \frac{\exp \left( - \frac{1}{2 \sigma^2} N_i - \alpha \right)}{M_i} \right\}_+ \]
+\[ L_\mathrm{magnet} = \frac{1}{n} \sum_{i = 1}^n \max \left( 0, 1 + \log \frac{\exp \left( - \frac{1}{2 \sigma^2} N_i - \alpha \right)}{M_i} \right) \]
 where \( \alpha \in \mathfield{R} \) is a hyper-parameter of the method. Since the method standardizes both of the terms of the innermost fraction by \( \sigma^2 \), \( \alpha \) is the desired cluster separation gap expressed in the units of the variance.
 
 The magnet loss is taken almost verbatim from the original article. The only change needed is a different way to obtain the representation space by taking
