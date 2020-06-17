@@ -13,7 +13,7 @@ Optimizing this	value will result in \( f_k \) modelling the density ratio
 \[ f_k \left( x_{t + k}, c_t \right) \propto \frac{p \left( x_{t + k} \middle| c_t \right)}{p \left( x_{t + k} \right)} \]
 and therefore in maximizing the mutual information between \( x_{t + k} \) and \( c_t \).
 
-The actual application to MIL is based on the following idea. If a bag is split into two parts, it is reasonable to expect that the representations of these two parts would be close to one another. On the other hand, if a random bag were to be drawn from the data (as a \textit{simple random sample with replacement}), it is reasonable to expect it to be relatively far from any actual bag present in the data. These assumptions can be proven correct by using the probabilistic formalism for MIL (see subsection \ref{sec:probabilistic-formalism}). Given that each bag \( B_k \) is viewed as a set of realizations of a probability distribution \( P_k \in \mathcal{P}^\mathspace{X} \), it follows that the two parts of the bag, \( B_k^{(1)} \) and \( B_k^{(2)} \), are sets of realizations from the same distribution \( P_k \) and therefore should be statistically indistinguishable. On the other hand, a randomly sampled bag \( B'_j \) does not share the same probability distribution.
+The actual application to MIL is based on the following idea. If a bag is split into two parts, it is reasonable to expect that the representations of these two parts would be close to one another. On the other hand, if a random bag were to be drawn from the data (as a \textit{simple random sample with replacement}), it is reasonable to expect it to be relatively far from any actual bag present in the data. These assumptions can be proven correct by using the probabilistic formalism for MIL (see Subsection~\ref{sec:probabilistic-formalism}). Given that each bag \( B_k \) is viewed as a set of realizations of a probability distribution \( P_k \in \mathcal{P}^\mathspace{X} \), it follows that the two parts of the bag, \( B_k^{(1)} \) and \( B_k^{(2)} \), are sets of realizations from the same distribution \( P_k \) and therefore should be statistically indistinguishable. On the other hand, a randomly sampled bag \( B'_j \) does not share the same probability distribution.
 Using these assumptions, the following clustering loss is constructed:
 \begin{align*}
 	L_\mathrm{CPC} = &\log \left\lVert \phi \left( B_k^{(1)} \right) - \phi \left( B_k^{(2)} \right) \right\rVert^2 \\
@@ -21,7 +21,7 @@ Using these assumptions, the following clustering loss is constructed:
 \end{align*}
 where the value \( K \in \mathfield{N} \) is a hyper-parameter of this method. The first term of the loss function depicts the notion that the representations of the two parts of the bag should be close to one another and corresponds to the first term of InfoNCE, which maximizes the prediction of a matching future sample from the current context. The second term depicts the notion that a random bag should be far from all the bags\footnote{On the off-chance a random bag would be close to \( B_k^{(1)} \), this would be outweighed by the other terms.} and corresponds to the second term of InfoNCE, which minimizes the prediction of a random sample from the current context. Choosing to only use the first part of the bag in the second term has no effect as the two parts are chosen randomly.
 
-This method can be further modified to make it less computationally complex. In order to not have to draw a lot of random bags, it can be reasonably expected that, on average, the representations of two parts of two mismatched bags \( B_{k_1}^{(1)} \) and \( B_{k_2}^{(2)} \) should be far apart. The matrix \( \mathmat{D} \) is constructed as
+This method can be further modified to make it less computationally complex. In order to not have to draw a lot of random bags, it can be reasonably expected that, on average, the representations of two parts of two mismatched bags \( B_{k_1}^{(1)} \) and \( B_{k_2}^{(2)} \) should be far apart. A matrix \( \mathmat{D} \) is constructed as
 \begin{equation}\label{eq:bag-distance-matrix}
 	\mathmat{D}_{ij} = \left\lVert \phi \left( B_i^{(1)} \right) - \phi \left( B_j^{(2)} \right) \right\rVert^2
 \end{equation}
@@ -44,7 +44,7 @@ A helper matrix \( \mathmat{y} \) is used such that
 	0 &\text{for} \quad y_i \neq y_j \\
 	1 &\text{for} \quad y_i = y_j \\
 \end{cases} \]
-In addition to this, for each input \( \mathvec{x}_i \), \( k \) target neighbours are defined that are supposed to be close to \( \mathvec{x}_i \). Euclidean distance may be used to find the target neighbours. A matrix \( \mathmat{\eta} \) is used to indicate target neighbours where \( \mathmat{\eta}_{ij} = 1 \) when \( \mathvec{x}_j \) is a target neighbour of \( \mathvec{x}_i \) and \( 0 \) otherwise.
+In addition to this, for each input \( \mathvec{x}_i \), \( k \) target neighbours are defined that are supposed to be close to \( \mathvec{x}_i \). Euclidean distance may be used to find the target neighbours. A matrix \( \mathmat{\eta} \) is used to indicate target neighbours where \( \mathmat{\eta}_{ij} = 1 \) if \( \mathvec{x}_j \) is a target neighbour of \( \mathvec{x}_i \) and \( 0 \) else.
 
 The cost function features two competing terms. The first term depicts the notion that an input should be close to its target neighbours. The second term depicts the notion that inputs of a different class should be far from one another. The loss is of the form
 \begin{align*}
@@ -53,20 +53,20 @@ The cost function features two competing terms. The first term depicts the notio
 \end{align*}
 where \( c > 0 \) is a hyper-parameter of this method.
 
-To adapt the original method, the definitions need to be modified to leverage the bagging of the data. The matrix \( \mathmat{y} \) is defined in the same way, only with labels on the level of bags. The value \( \mathmat{\eta}_{ij} = 1 \) iff bag \( B_j \) is a target neighbour for the bag \( B_i \). Then, using the matrix \( \mathmat{D} \) defined in equation \ref{eq:bag-distance-matrix} directly instead of the linear transformation, the loss function can be expressed as
+To adapt the original method, the definitions need to be modified to leverage the bagging of the data. The matrix \( \mathmat{y} \) is defined in the same way, only with labels on the level of bags. The value \( \mathmat{\eta}_{ij} = 1 \) iff the bag \( B_j \) is a target neighbour for the bag \( B_i \). Then, using the matrix \( \mathmat{D} \) defined in equation \ref{eq:bag-distance-matrix} directly instead of the linear transformation, the loss function can be expressed as
 
 \begin{align*}
 	L_\mathrm{triplet} = &\sum_{ij} \eta_{ij} D_{ij} + \\
 	+ c &\sum_{ijl} \eta_{ij} \left( 1 - y_{il} \right) \max \left( 0, 1 + D_{ij} - D_{il} \right)
 \end{align*}
-where \( c > 0 \) is again a hyper-parameter of the method. Although \cite{weinberger_distance_2006} suggest finding \( \mathmat{\eta} \) as the \( k \)-nearest neighbours of a data point, in this work, the loss has been simplified by setting \( \mathmat{\eta}_{ij} = \mathmat{y}_{ij} \).
+where \( c > 0 \) is again a hyper-parameter of the method. Although \cite{weinberger_distance_2006} suggest finding \( \mathmat{\eta} \) as the \( k \)-nearest neighbours of a data point, the loss has been simplified by setting \( \mathmat{\eta}_{ij} = \mathmat{y}_{ij} \) for \( i, j = 1, \dots, n \) in this work.
 
 \subsection{Magnet Loss}
 Magnet loss is an enhancement of the previously described triplet loss, first introduced by \cite{rippel_metric_2015}. Whereas the triplet loss function essentially goes over all triplets of a data point, its target neighbour and a point from a different class and optimizes their distances, magnet loss maintains an explicit model of the distributions of different classes in the representation space. To capture the distributions, the model uses simple clustering models for each class. Differently to triplet loss, for which the target neighbourhood is set \textit{a priori} and is based on similarity in the original input space, magnet loss uses similarity in the space of representations and updates it periodically. Magnet loss also pursues local separation instead of global -- representations of different classes should be separated, but can be interleaved.
 
-Let \( \left\{ \left( \mathvec{x}_i, y_i \right) \right\}_{i = 1}^n \) be a training dataset with inputs \( \mathvec{x}_i \in \mathfield{R}^d \) and \( y_i \) being \( C \) discrete class labels. A general parameterized map \( \mathvec{f} \left( \cdot; \Theta \right) \) embeds the inputs into a representation space:
+Let \( \left\{ \left( \mathvec{x}_i, y_i \right) \right\}_{i = 1}^n \) be a training dataset where \( \mathvec{x}_i \in \mathfield{R}^d \) and \( y_i \) are one of \( C \) discrete class labels. A general parameterized map \( \mathvec{f} \left( \cdot; \Theta \right) \) embeds the inputs into a representation space:
 \[ \mathvec{r}_i = \mathvec{f} \left( \mathvec{x}_i; \Theta \right) \]
-For each class \( c \), \( K \) cluster assignments are obtained by using the K-means++ algorithm \cite{macqueen_methods_1967, arthur_k-means++:_2007} where \( K \in \mathfield{N} \) is a hyper-parameter of the method:
+For each class \( c \), \( K \) cluster assignments are obtained with the K-means++ algorithm \cite{macqueen_methods_1967, arthur_k-means++:_2007} where \( K \in \mathfield{N} \) is a hyper-parameter of the method:
 \[ \mathcal{I}_1^c, \dots, \mathcal{I}_K^c = \argmin_{I_1^c, \dots, I_K^c} \sum_{k = 1}^K \sum_{\mathvec{r} \in I_k^c} \left\lVert \mathvec{r} - \frac{1}{\left\lvert I_k^c \right\rvert} \sum_{\mathvec{s} \in I_k^c} \mathvec{s} \right\rVert^2  \]
 the centre of each cluster is denoted \( \mathvec{\mu}_k^c \):
 \[ \mathvec{\mu}_k^c = \frac{1}{\left\lvert \mathcal{I}_k^c \right\rvert} \sum_{\mathvec{r} \in \mathcal{I}_k^c} \mathvec{r} \]
@@ -78,7 +78,7 @@ The variance of the distance of the representations from their respective centre
 \[ \sigma^2 = \frac{1}{n - 1} \sum_{i = 1}^n N_i \]
 For \( r_i \), the dissimilarity to all the inputs of different classes is calculated as
 \[ M_i = \sum_{c \neq y_i} \sum_{k = 1}^K \exp \left( - \frac{1}{2 \sigma^2} \left\lVert \mathvec{r}_i - \mathvec{\mu}_k^c \right\rVert^2 \right) \]
-The magnet loss is then
+The magnet loss is then defined as
 \[ L_\mathrm{magnet} = \frac{1}{n} \sum_{i = 1}^n \max \left( 0, 1 + \log \frac{\exp \left( - \frac{1}{2 \sigma^2} N_i - \alpha \right)}{M_i} \right) \]
 where \( \alpha \in \mathfield{R} \) is a hyper-parameter of the method. Since the method standardizes both of the terms of the innermost fraction by \( \sigma^2 \), \( \alpha \) is the desired cluster separation gap expressed in the units of the variance.
 
