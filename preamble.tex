@@ -31,10 +31,7 @@
 \newcommand{\mathvec}{\ensuremath{\bm}}
 
 \newcounter{enumroman}
-\newenvironment{romanitems}{\begin{list}{\bfseries(\roman{enumroman})\hfill}{\usecounter{enumroman}
-\setlength{\labelwidth}{\leftmargin}\addtolength{\labelwidth}{-1\labelsep}
-\topsep=0mm plus 2pt\itemsep=0mm\parsep=0mm plus
-                  2pt\itemindent=0mm}}{\end{list}}
+\newenvironment{romanitems}{\begin{list}{\bfseries(\roman{enumroman})\hfill}{\usecounter{enumroman}\setlength{\labelwidth}{\leftmargin}\addtolength{\labelwidth}{-1\labelsep}\topsep=0mm plus 2pt\itemsep=0mm\parsep=0mm plus 2pt\itemindent=0mm}}{\end{list}}
 
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
