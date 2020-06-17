@@ -67,7 +67,7 @@ Magnet loss is an enhancement of the previously described triplet loss, first in
 Let \( \left\{ \left( \mathvec{x}_i, y_i \right) \right\}_{i = 1}^n \) be a training dataset where \( \mathvec{x}_i \in \mathfield{R}^d \) and \( y_i \) are one of \( C \) discrete class labels. A general parameterized map \( \mathvec{f} \left( \cdot; \Theta \right) \) embeds the inputs into a representation space:
 \[ \mathvec{r}_i = \mathvec{f} \left( \mathvec{x}_i; \Theta \right) \]
 For each class \( c \), \( K \) cluster assignments are obtained with the K-means++ algorithm \cite{macqueen_methods_1967, arthur_k-means++:_2007} where \( K \in \mathfield{N} \) is a hyper-parameter of the method:
-\[ \mathcal{I}_1^c, \dots, \mathcal{I}_K^c = \argmin_{I_1^c, \dots, I_K^c} \sum_{k = 1}^K \sum_{\mathvec{r} \in I_k^c} \left\lVert \mathvec{r} - \frac{1}{\left\lvert I_k^c \right\rvert} \sum_{\mathvec{s} \in I_k^c} \mathvec{s} \right\rVert^2  \]
+\[ \mathcal{I}_1^c, \dots, \mathcal{I}_K^c = \argmin_{I_1^c, \dots, I_K^c} \sum_{k = 1}^K \sum_{\mathvec{r} \in I_k^c} \left\lVert \mathvec{r} - \frac{1}{\left\lvert I_k^c \right\rvert} \sum_{\mathvec{s} \in I_k^c} \mathvec{s} \right\rVert^2 \]
 the centre of each cluster is denoted \( \mathvec{\mu}_k^c \):
 \[ \mathvec{\mu}_k^c = \frac{1}{\left\lvert \mathcal{I}_k^c \right\rvert} \sum_{\mathvec{r} \in \mathcal{I}_k^c} \mathvec{r} \]
 For each input, the centre of the cluster in which its representation falls is denoted as
