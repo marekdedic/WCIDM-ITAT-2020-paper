@@ -2,10 +2,10 @@
 
 Multi-instance learning (MIL) belongs to recently fast developing areas of machine learning. Though it is a supervised learning method, this paper addresses its application to unsupervised learning -- clustering.  Whereas traditional clustering clusters points, multi-instance clustering clusters multisets of points, also know as bags.
 
-A key prerequisite for an application of multi-instance learning to clustering is that loss functions for clustering, originally proposed for points, are adapted for bags. In this paper, such an adaptation is outlined for three sophisticated loss functions:  contrastive predictive coding, triplet loss and magnet loss. From the point of view of their adaptation, two properties of bags are crucial:
+A key prerequisite for the application of multi-instance learning to clustering is that loss functions for clustering, originally proposed for points, have to be adapted for bags. In this paper, such an adaptation is outlined for three sophisticated loss functions: contrastive predictive coding, triplet loss and magnet loss. From the point of view of their adaptation, two properties of bags are crucial:
 \begin{romanitems}
 	\item Bags can be incorporated into the statistical framework, viewing data as realizations of random variables. In this framework, bags are simply random samples.
-	\item Bags are mapped back to the instance space using various aggregation functions, for example in case of numerical instances, such functions as mean, min and max. Aggregation functions allow to transfer to bags important mappings defined on the instance space, such as embeddings resulting from representation learning by neural networks.
+	\item Bags are mapped back to the instance space using various aggregation functions, for example in case of numerical instances, such functions as mean, min and max. Aggregation functions allow transfering important mappings defined on the instance space to bags. Among such mappings are embeddings resulting from representation learning by neural networks.
 \end{romanitems}
 
-In the next section, basic properties of multi-instance learning and clustering are recalled. The adaptation of the considered loss function is explained in Section~\ref{lf}. A comprehensive comparison of them is then presented in Section~\ref{ex}.
+In the next section, basic properties of multi-instance learning and clustering are briefly introduced. The adaptation of the considered loss functions is explained in Section~\ref{sec:loss-functions}. A comprehensive comparison of them is then presented in Section~\ref{sec:experimental-comparison}.
