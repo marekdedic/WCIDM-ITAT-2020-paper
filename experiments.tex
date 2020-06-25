@@ -47,3 +47,40 @@ In order to provide some baseline against which the models could be compared (as
 Some of the three proposed clustering-losses have some hyper-parameters which need to be tuned. A range of values was tried for each hyper-parameter in order to select the best configuration for each on each of the datasets. For \( L_\mathrm{triplet} \), the values \( c \in \left\{ 0.01, 0.1, 1, 10, 100 \right\} \) have been tested. For \( L_\mathrm{magnet} \), the values \( K \in \left\{ 2, 3, 8, 16 \right\} \), \( \alpha \in \left\{ 0, 0.1, 0.5 \right\} \) and the cluster index update frequency in \( \left\{ 5, 10, 25, 70 \right\} \) have been tested.
 
 \subsection{Comparison Results}\label{sec:experiment-comparison}
+
+Table~\ref{tab:public-accuracy} lists the accuracy of a kNN classifier build on the embedding for all of the methods and all of the datasets.
+
+\begin{table}[h!]
+  \centering
+  \begin{tabular}{lrrr}
+    \toprule
+    Dataset          & CPC            & Triplet loss   & Magnet loss \\
+    \midrule
+    BrownCreeper     & \textbf{0.900} & 0.882          & 0.XXX \\
+    CorelAfrican     & 0.950          & \textbf{0.955} & 0.XXX \\
+    CorelBeach       & 0.965          & \textbf{0.980} & 0.XXX \\
+    Elephant         & 0.575          & \textbf{0.900} & 0.825 \\
+    Fox              & 0.400          & 0.675          & \textbf{0.725} \\
+    Musk1            & 0.667          & \textbf{0.889} & \textbf{0.889} \\
+    Musk2            & 0.750          & \textbf{0.950} & \textbf{0.950} \\
+    Mutagenesis1     & 0.658          & 0.816          & \textbf{0.912} \\
+    Mutagenesis2     & 0.708          & \textbf{1.000} & \textbf{1.000} \\
+    Newsgroups1      & 0.533          & 0.950          & \textbf{1.000} \\
+    Newsgroups2      & 0.600          & 0.900          & \textbf{0.950} \\
+    Newsgroups3      & 0.683          & 0.700          & \textbf{0.850} \\
+    Protein          & 0.820          & \textbf{0.923} & 0.897 \\
+    Tiger            & 0.642          & \textbf{0.825} & \textbf{0.825} \\
+    UCSBBreastCancer & 0.333          & 0.667          & \textbf{1.000} \\
+    Web1             & 0.667          & 0.733          & \textbf{0.800} \\
+    Web2             & 0.689          & \textbf{0.800} & 0.733 \\
+    Web3             & 0.733          & 0.800          & \textbf{1.000} \\
+    Web4             & 0.622          & 0.800          & \textbf{0.930} \\
+    WinterWren       & 0.936          & \textbf{0.955} & 0.936 \\
+    \bottomrule
+  \end{tabular}
+  \caption{The accuracy of the final models for the publicly available datasets.}\label{tab:public-accuracy}
+\end{table}
+
+\subsection{Statistical significance of the results}
+
+The null hypothesis that all three methods are the same as measured by the accuracy can be rejected at a 5\% level of significance by the Friedman two-way analysis of variance by ranks \cite{friedman_use_1937}. Triplet and magnet losses are better than CPC at a 5\% level of significance by the post-hoc Nemenyi pairwise test \cite{nemenyi_distribution-free_1963}, however, the null hypothesis that magnet loss and triplet loss are the same cannot be rejected at the 5\% significance level by this test.
