@@ -46,9 +46,9 @@ In order to provide some baseline against which the models could be compared (as
 
 Some of the three proposed clustering-losses have some hyper-parameters which need to be tuned. A range of values was tried for each hyper-parameter in order to select the best configuration for each on each of the datasets. For \( L_\mathrm{triplet} \), the values \( c \in \left\{ 0.01, 0.1, 1, 10, 100 \right\} \) have been tested. For \( L_\mathrm{magnet} \), the values \( K \in \left\{ 2, 3, 8, 16 \right\} \), \( \alpha \in \left\{ 0, 0.1, 0.5 \right\} \) and the cluster index update frequency in \( \left\{ 5, 10, 25, 70 \right\} \) have been tested.
 
-\subsection{Comparison Results}\label{sec:experiment-comparison}
+\subsection{Comparison of Results}\label{sec:experiment-comparison}
 
-Table~\ref{tab:public-accuracy} lists the accuracy of a kNN classifier build on the embedding for all of the methods and all of the datasets.
+Table~\ref{tab:public-accuracy} lists the accuracy of a kNN classifier build on the embedding for all of the methods and all of the datasets. Figure~\ref{fig:public-comparison} shows the value o the Silhouette coefficient and the accuracy on 3 selected datasets. As can be seen, CPC is the worst performing of the methods overall, and, more significantly, shows no clear improvement over the learning periods for both the silhouette coefficient and the kNN classifier accuracy. Between triplet loss and magnet loss, magnet loss is somewhat better in the classification accuracy, whereas triplet loss is somewhat better in the silhouette coefficient, pointing at better separation of individual clusters. Of note is also the differing behaviour for various datasets, for example the clear dominance of triplet loss w.r.t. the Silhouette coefficient on the Web3 dataset. This shows that none of the methods is a clear winner in all scenarios and the best one needs to be carefully selected.
 
 \begin{table}[h!]
   \centering
@@ -81,6 +81,58 @@ Table~\ref{tab:public-accuracy} lists the accuracy of a kNN classifier build on 
   \caption{The accuracy of the final models for the publicly available datasets.}\label{tab:public-accuracy}
 \end{table}
 
+\begin{figure*}
+  \centering
+  \begin{subfigure}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/Musk2_ratio/Musk2_ratio.pdf}
+    \caption{Musk2, silhouette coeff.}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/UCSBBreastCancer_ratio/UCSBBreastCancer_ratio.pdf}
+    \caption{UCSBBreastCancer, silhouette coeff.}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/Web3_ratio/Web3_ratio.pdf}
+    \caption{Web3, silhouette coeff.}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/Musk2_accuracy/Musk2_accuracy.pdf}
+    \caption{Musk2, accuracy}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/UCSBBreastCancer_accuracy/UCSBBreastCancer_accuracy.pdf}
+    \caption{UCSBBreastCancer, accuracy}
+  \end{subfigure}
+  \begin{subfigure}[t]{0.32\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{images/Web3_accuracy/Web3_accuracy.pdf}
+    \caption{Web3, accuracy}
+  \end{subfigure}
+  \caption{Accuracy and the Silhouette coefficient on three selected datasets.}\label{fig:public-comparison}
+\end{figure*}
+
 \subsection{Statistical significance of the results}
 
-The null hypothesis that all three methods are the same as measured by the accuracy can be rejected at a 5\% level of significance by the Friedman two-way analysis of variance by ranks \cite{friedman_use_1937}. Triplet and magnet losses are better than CPC at a 5\% level of significance by the post-hoc Nemenyi pairwise test \cite{nemenyi_distribution-free_1963}, however, the null hypothesis that magnet loss and triplet loss are the same cannot be rejected at the 5\% significance level by this test.
+The null hypothesis that all three methods are the same as measured by the accuracy can be rejected at a 5\% level of significance by the Friedman two-way analysis of variance by ranks \cite{friedman_use_1937}. Triplet and magnet losses are better than CPC at a 5\% level of significance by the post-hoc Nemenyi pairwise test \cite{nemenyi_distribution-free_1963}, however, the null hypothesis that magnet loss and triplet loss are the same cannot be rejected at the 5\% significance level by this test. This further supports the differing results between these two methods as mentioned in the previous subsection.
+
+\subsection{HTTP dataset}
+
+Table~\ref{tab:cisco-accuracy} compares the three methods on the proprietary dataset from Cisco Cognitive Intelligence. Here, magnet loss is the best of the three methods, however, only by a small margin over the other 2 methods. Since the datasets consisted of 90\% of negative samples however, none of the results is particularly remarkable and some further tuning would be needed if any of the methods were to be used in real environment.
+
+\begin{table}
+  \centering
+  \begin{tabular}{lrrr}
+    \toprule
+    Classification problem & CPC   & Triplet loss & Magnet loss \\
+    \midrule
+    2 classes              & 0.920 & 0.910        & \textbf{0.930} \\
+    20 classes             & 0.893 & 0.868        & \textbf{0.904} \\
+    \bottomrule
+  \end{tabular}
+  \caption{The accuracy of the final models for the corporate datasets.}\label{tab:cisco-accuracy}
+\end{table}
