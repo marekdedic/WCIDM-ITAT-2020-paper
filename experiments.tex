@@ -1,10 +1,10 @@
 \section{Experimental Comparison}\label{sec:experimental-comparison}
 
-The three loss functions presented in Section~\ref{sec:loss-functions} were experimentally evaluated on 20 publicly available datasets and on a corporate dataset from the domain of computer security. The 2 metrics presented in Section~\ref{sec:clustering-metrics} were used, i.e. the Silhouette coefficient and the accuracy of a kNN classifier built on the embedding. Both of these metrics were tracked over the learning period to also evaluate how the models are learning in addition to their final performance.
+The three loss functions presented in Section~\ref{sec:loss-functions} were experimentally evaluated on 18 publicly available datasets and on a corporate dataset from the domain of computer security. The 2 metrics presented in Section~\ref{sec:clustering-metrics} were used, i.e. the Silhouette coefficient and the accuracy of a kNN classifier built on the embedding. Both of these metrics were tracked over the learning period to also evaluate how the models are learning in addition to their final performance.
 
 \subsection{Datasets}
 
-The evaluation was done on a set of 20 publicly available datasets, listed in Table~\ref{tab:datasets}. All the datasets as used were also made public\footnote{https://github.com/marekdedic/MilDatasets.jl}.
+The evaluation was done on a set of 18 publicly available datasets, listed in Table~\ref{tab:datasets}. All the datasets as used were also made public\footnote{https://github.com/marekdedic/MilDatasets.jl}.
 
 \begin{table}
   \centering
@@ -13,7 +13,6 @@ The evaluation was done on a set of 20 publicly available datasets, listed in Ta
     Source & Datasets \\
     \midrule
     \cite{briggs_rank-loss_2012} & BrownCreeper, WinterWren \\
-    \cite{chen_miles:_2006} & CorelAfrican, CorelBeach \\
     \cite{andrews_support_2002} & Elephant, Fox, Tiger \\
     \cite{dietterich_solving_1997} & Musk1, Musk2 \\
     \cite{srinivasan_comparing_1995} & Mutagenesis1, Mutagenesis2 \\
@@ -23,7 +22,7 @@ The evaluation was done on a set of 20 publicly available datasets, listed in Ta
     \cite{zhou_multi-instance_2005} & Web1, Web2, Web3, Web4 \\
     \bottomrule
   \end{tabular}
-  \caption{The 20 publicly available datasets used.}\label{tab:datasets}
+  \caption{The 18 publicly available datasets used.}\label{tab:datasets}
 \end{table}
 
 The models were also evaluated on a proprietary dataset provided by Cisco Cognitive Intelligence, consisting of records of network connections from clients (e.g. user computers or mobile devices) to some on-line services. The dataset represents HTTP traffic of more than 100 companies. Two datasets were collected, each spanning 1 day of traffic. The training data was traffic from 2019-11-18, while the data used for testing was collected the following day, 2019-11-19. For each connection, a proprietary classification system based on \cite{jusko_graph-based_2017} provided labels, classifying the connections either as legitimate or malicious (connected to malware activity). The data was sampled to include 90\% of negative bags and 10\% of positive bags. For each connection, 20 connection features were used, as well as a MIL model of the server URL, which is visualized in Figure~\ref{fig:URL-model}.
@@ -57,8 +56,6 @@ Table~\ref{tab:public-accuracy} lists the accuracy of a kNN classifier build on 
     Dataset          & CPC            & Triplet loss   & Magnet loss \\
     \midrule
     BrownCreeper     & \textbf{0.900} & 0.882          & \textbf{0.900} \\
-    CorelAfrican     & 0.950          & \textbf{0.955} & 0.XXX \\
-    CorelBeach       & 0.965          & \textbf{0.980} & 0.XXX \\
     Elephant         & 0.575          & \textbf{0.900} & 0.825 \\
     Fox              & 0.400          & 0.675          & \textbf{0.725} \\
     Musk1            & 0.667          & \textbf{0.889} & \textbf{0.889} \\
