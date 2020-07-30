@@ -72,7 +72,7 @@ the centre of each cluster is denoted \( \mathvec{\mu}_k^c \):
 \[ \mathvec{\mu}_k^c = \frac{1}{\left\lvert \mathcal{I}_k^c \right\rvert} \sum_{\mathvec{r} \in \mathcal{I}_k^c} \mathvec{r} \]
 For each input, the centre of the cluster in which its representation falls is denoted as
 \[ \mathvec{\mu}_i = \argmin_{\mathvec{\mu_k^c}} \left\lVert \mathvec{r}_i - \mathvec{\mu}_k^c \right\rVert \]
-and the distance of its representation from the centre of the cluster is denoted as
+and the squared distance of its representation from the centre of the cluster is denoted as
 \[ N_i = \left\lVert \mathvec{r}_i - \mathvec{\mu}_i \right\rVert^2 \]
 The variance of the distance of the representations from their respective centres can then be calculated as
 \[ \sigma^2 = \frac{1}{n - 1} \sum_{i = 1}^n N_i \]

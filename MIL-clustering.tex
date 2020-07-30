@@ -10,7 +10,7 @@ The MIL paradigm is a type of representation learning on data which has some int
 A probabilistic way of describing multi-instance learning was first introduced in \cite{pevny_using_2017} and builds on the previous work \cite{muandet_learning_2012}.
 
 Let for the space \( \mathspace{X} \) exist a measurable space \( \left( \mathspace{X}, \mathspace{A} \right) \), where \( \mathspace{A} \) is a \( \sigma \)-algebra on \( \mathspace{X} \). Let \( \mathcal{P}^\mathspace{X} \) denote the set of all probability measures on \( \left( \mathspace{X}, \mathspace{A} \right) \). A bag \( B \) is viewed as a random sample with replacement of a random variable governed by a particular probability distribution \( p_B \in \mathcal{P}^\mathspace{X} \), that is
-\[ B = \left\{ x_i \middle| x_i \sim p_B, i \in \left\{ 1, \dots, m \right\}, m \in \mathfield{N} \right\} \]
+\[ B = \left\{ x_i \middle| x_i \sim p_B, i \in \left\{ 1, \dots, m \right\} \right\} \ \text{where} \ m \in \mathfield{N}\]
 
 \subsection{Embedded-space paradigm for solving multi-instance problems}\label{sec:embedded-space-paradigm}
 While it is possible to use several approaches to solving multi-instance problems, in this work, the embedded-space paradigm was used. For an overview of the other paradigms, see \cite{dedic_optimalization_2020}.
@@ -38,8 +38,9 @@ If the cluster-loss \( L_C \) is chosen correctly, minimizing \( L \) over the l
 In our research, several clustering evaluation metrics have been used. The primary metrics are based on the Silhouette coefficient, the secondary ones on the kNN algorithm. The metrics are somewhat different to the ones traditionally used in evaluating clustering methods as all the datasets used in this work are originally classification datasets and therefore have classes available. Each class can then be viewed as a cluster target and the learned clustering evaluated against these targets.
 
 The first two metrics measure the \name{homogeneity} of clusters (that is the property of instances of one cluster being close to one another) and their \name{separation} (that is the property of instances of different clusters being far apart), see \cite{everitt_cluster_2001}. To measure the non-homogeneity of a cluster, the average distance between items in a cluster is measured and averaged over all clusters, giving the following metric for items \( x_j \) in clusters \( C_i \):
-\[ \mu \left( C_i \right) = \frac{1}{\left\lvert C_i \right\rvert} \sum_{x_j \in C_i} x_j \]
 \[ \mathrm{nonhomo} \left( C_1, \dots, C_n \right) = \frac{1}{n} \sum_{i = 1}^n \sum_{x_j \in C_i} \left\lVert x_j - \mu \left( C_i \right) \right\rVert \]
+where
+\[ \mu \left( C_i \right) = \frac{1}{\left\lvert C_i \right\rvert} \sum_{x_j \in C_i} x_j \]
 
 To measure the separation of clusters, the average distance between cluster centres was taken:
 \[ \mathrm{sep} \left( C_1, \dots, C_n \right) = \frac{2}{n \left( n - 1 \right)} \sum_{\substack{i, j \in \hat{n} \\ i < j }} \left\lVert \mu \left( C_i \right) - \mu \left( C_j \right) \right\rVert \]
