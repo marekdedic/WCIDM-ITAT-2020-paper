@@ -7,8 +7,8 @@ In this section, three ways of constructing such a clustering-loss function are 
 \subsection{Contrastive Predictive Coding}
 Contrastive predictive coding (\name{CPC}) is a technique first introduced by \cite{oord_representation_2019}. The method builds the model on the ideas from predictive coding \cite{elias_predictive_1955}. CPC represents time series by modelling future data from the past. To this end, the model learns high-level representations of the data and discards noise. The further in the future the model predicts, the less shared information is available and thus the global structure needs to be inferred better.
 
-The core concept taken from CPC is a loss function called InfoNCE in the prior art. Given a time series of values \( x_t \), an autoregressive model produces a context \( c_t \) from all \( x_i \) up to the point \( t \). For a predicted future value \( x_{t + k} \), the current context \( c_t \), and a model \( f_k \), the InfoNCE loss is defined as
-\[ - \underset{\mathset{X}}{\mathbb{E}} \left[ \log f_k \left( x_{t + k}, c_t \right) - \log \sum_{x_j \in \mathset{X}} f_k \left( x_j, c_t \right) \right] \]
+The core concept taken from CPC is a loss function called InfoNCE in the prior art. Given a time series of values \( x_t \), an autoregressive model produces a context \( c_t \) from all \( x_i \) up to the point \( t \). For a training set \( \mathset{X} \), predicted future value \( x_{t + k} \), the current context \( c_t \), and a model \( f_k \), the InfoNCE loss is defined as
+\[ - \mathbb{E}_\mathset{X} \left[ \log f_k \left( x_{t + k}, c_t \right) - \log \sum_{x_j \in \mathset{X}} f_k \left( x_j, c_t \right) \right] \]
 Optimizing this	value will result in \( f_k \) modelling the density ratio
 \[ f_k \left( x_{t + k}, c_t \right) \propto \frac{p \left( x_{t + k} \middle| c_t \right)}{p \left( x_{t + k} \right)} \]
 and therefore in maximizing the mutual information between \( x_{t + k} \) and \( c_t \).
@@ -88,4 +88,4 @@ In this usage, \( y_i \) is the class label assigned to the bag \( B_i \) (makin
 
 Due to the choice of the hyper-parameter \( K \) being non-obvious for most problems, alternative clustering methods that would not need hyper-parameter tuning were explored. One such method, \name{self-tuning spectral clustering} \cite{zelnik-manor_self-tuning_2005} was implemented as a replacement for the K-means algorithm used in the original method. Section \ref{sec:experiment-comparison} presents a comparison of the performance of these two methods.
 
-Since magnet loss is an enhancement of triplet loss, it is reasonable to assume it would perform the same or better than triplet loss. One drawback of magnet loss is the higher number of hyper-parameters which need to be tuned in order for the method to work correctly. This problem is partially solved by the introduction of self-tuning spectral clustering.
+Since magnet loss is an enhancement of triplet loss, it is reasonable to assume it would perform the same or better than triplet loss. One drawback of magnet loss is the higher number of hyper-parameters which need to be tuned in order for the method to work correctly. This problem is partially solved by the introduction of self-tuning spectral clustering \cite{zelnik-manor_self-tuning_2005}, however, that is outside the scope of this paper.
