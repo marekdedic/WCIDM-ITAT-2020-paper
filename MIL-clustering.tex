@@ -47,7 +47,7 @@ The first two metrics measure the \name{homogeneity} of clusters (that is the pr
 \[ \phantom{,}\mathrm{nonhomo} \left( C_1, \dots, C_n \right) = \frac{1}{n} \sum_{i = 1}^n \sum_{x_j \in C_i} \left\lVert x_j - \mu \left( C_i \right) \right\rVert, \]
 where
 \[ \phantom{,}\mu \left( C_i \right) = \frac{1}{\left\lvert C_i \right\rvert} \sum_{x_j \in C_i} x_j, \]
-where \( \left\lvert C_i \right\rvert \) is the number of instances in the bag \( C_i \).
+with \( \left\lvert C_i \right\rvert \) being the number of instances in the bag \( C_i \).
 
 To measure the separation of clusters, the average distance between cluster centres was taken:
 \[ \phantom{.}\mathrm{sep} \left( C_1, \dots, C_n \right) = \frac{2}{n \left( n - 1 \right)} \sum_{\substack{i, j \in \hat{n} \\ i < j }} \left\lVert \mu \left( C_i \right) - \mu \left( C_j \right) \right\rVert. \]
