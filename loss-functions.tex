@@ -1,14 +1,14 @@
 \section{Investigated Loss Functions}\label{sec:loss-functions}
 
-In section \ref{sec:clustering-metrics}, a method for learning a representation \( \phi \) was shown. In order to learn the parameters of the representation, a clustering-loss function is required in the form
-\[ L_C : \mathcal{P}^M \left( \bar{\mathspace{X}} \right) \to \mathfield{R} \]
+In Section~\ref{sec:clustering-metrics}, a method for learning a representation \( \phi \) was described. In order to learn the parameters of the representation, a clustering-loss function is required in the form
+\[ \phantom{.}L_C : \mathcal{P}^M \left( \bar{\mathspace{X}} \right) \to \mathfield{R}. \]
 In this section, three ways of constructing such a clustering-loss function are explored. First, an unsupervised method constructing a clustering loss-function is presented, followed by two supervised methods.
 
 \subsection{Contrastive Predictive Coding}
 Contrastive predictive coding (\name{CPC}) is a technique first introduced by \cite{oord_representation_2019}. The method builds the model on the ideas from predictive coding \cite{elias_predictive_1955}. CPC represents time series by modelling future data from the past. To this end, the model learns high-level representations of the data and discards noise. The further in the future the model predicts, the less shared information is available and thus the global structure needs to be inferred better.
 
-The core concept taken from CPC is a loss function called InfoNCE in the prior art. Given a time series of values \( x_t \), an autoregressive model produces a context \( c_t \) from all \( x_i \) up to the point \( t \). For a predicted future value \( x_{t + k} \), the current context \( c_t \), and a model \( f_k \), the InfoNCE loss is defined as
-\[ - \underset{\mathset{X}}{\mathbb{E}} \left[ \log f_k \left( x_{t + k}, c_t \right) - \log \sum_{x_j \in \mathset{X}} f_k \left( x_j, c_t \right) \right] \]
+The core concept taken from CPC is a loss function called InfoNCE in the prior art. Given a time series of values \( x_t \), an autoregressive model produces a context \( c_t \) from all \( x_i \) up to the point \( t \). For a training set \( \mathset{X} \), predicted future value \( x_{t + k} \), the current context \( c_t \), and a model \( f_k \), the InfoNCE loss is defined as
+\[ \phantom{.}- \mathbb{E}_\mathset{X} \left[ \log f_k \left( x_{t + k}, c_t \right) - \log \sum_{x_j \in \mathset{X}} f_k \left( x_j, c_t \right) \right]. \]
 Optimizing this	value will result in \( f_k \) modelling the density ratio
 \[ f_k \left( x_{t + k}, c_t \right) \propto \frac{p \left( x_{t + k} \middle| c_t \right)}{p \left( x_{t + k} \right)} \]
 and therefore in maximizing the mutual information between \( x_{t + k} \) and \( c_t \).
@@ -17,16 +17,18 @@ The actual application to MIL is based on the following idea. If a bag is split 
 Using these assumptions, the following clustering loss is constructed:
 \begin{align*}
 	L_\mathrm{CPC} = &\log \left\lVert \phi \left( B_k^{(1)} \right) - \phi \left( B_k^{(2)} \right) \right\rVert^2 \\
-	- &\log \sum_{j = 1}^K \left\lVert \phi \left( B_k^{(1)} \right) - \phi \left( B'_j \right) \right\rVert^2
+	- &\log \sum_{j = 1}^K \left\lVert \phi \left( B_k^{(1)} \right) - \phi \left( B'_j \right) \right\rVert^2.
 \end{align*}
 where the value \( K \in \mathfield{N} \) is a hyper-parameter of this method. The first term of the loss function depicts the notion that the representations of the two parts of the bag should be close to one another and corresponds to the first term of InfoNCE, which maximizes the prediction of a matching future sample from the current context. The second term depicts the notion that a random bag should be far from all the bags\footnote{On the off-chance a random bag would be close to \( B_k^{(1)} \), this would be outweighed by the other terms.} and corresponds to the second term of InfoNCE, which minimizes the prediction of a random sample from the current context. Choosing to only use the first part of the bag in the second term has no effect as the two parts are chosen randomly.
 
 This method can be further modified to make it less computationally complex. In order not to have to draw a lot of random bags, it can be reasonably expected that, on average, the representations of two parts of two mismatched bags \( B_{k_1}^{(1)} \) and \( B_{k_2}^{(2)} \) should be far apart. A matrix \( \mathmat{D} \) is constructed as
 \begin{equation}\label{eq:bag-distance-matrix}
-	\mathmat{D}_{ij} = \left\lVert \phi \left( B_i^{(1)} \right) - \phi \left( B_j^{(2)} \right) \right\rVert^2
+	\phantom{.}\mathmat{D}_{ij} = \left\lVert \phi \left( B_i^{(1)} \right) - \phi \left( B_j^{(2)} \right) \right\rVert^2.
 \end{equation}
 The distances of the corresponding halves are found on the diagonal of \( \mathmat{D} \), whereas the distances of mismatched halves are in the rest of the matrix. Under this assumption the final loss for the CPC method is
-\[ L_\mathrm{CPC} = \frac{1}{n} \sum_{i = 1}^n \left( \log \left( \mathmat{D}_{ii} \right) - \log \sum_{\substack{j = 1 \\ j \neq i}}^n \mathmat{D}_{ij} \right) \]
+\begin{equation}
+	\phantom{,}L_\mathrm{CPC} = \frac{1}{n} \sum_{i = 1}^n \left( \log \left( \mathmat{D}_{ii} \right) - \log \sum_{\substack{j = 1 \\ j \neq i}}^n \mathmat{D}_{ij} \right),
+\end{equation}
 where \( n \) is the number of bags.
 
 Out of the three methods presented in this section, the approach based on contrastive predictive coding seems the most promising, as it is the only unsupervised method and could therefore be used in a broader class of applications. This, however, also has its drawbacks -- unsupervised methods are generally harder to learn correctly. For that reason, the two supervised methods were selected as a safer option.
@@ -35,57 +37,59 @@ Out of the three methods presented in this section, the approach based on contra
 The performance of the \( k \)-nearest neighbour algorithm depends heavily on the distance metric used. Typically, the Euclidean distance is used. However, ideally, the metric should adapt to the problem at hand. \cite{weinberger_distance_2006} present a way to learn a Mahalanobis distance for kNN such that it has the \textit{homogeneity} and \textit{separation} properties of clustering. This distance, the description of which follows, has been utilized in this work as the basis for the desired loss function \( L_C \).
 
 Let \( \left\{ \left( \mathvec{x}_i, y_i \right) \right\}_{i = 1}^n \) be a training dataset with \( \mathvec{x}_i \in \mathfield{R}^d \) and \( y_i \) discrete class labels. In the original work, the goal is to learn a linear transformation
-\[ \mathvec{L} : \mathfield{R}^d \to \mathfield{R}^d \]
+\[ \phantom{.}\mathvec{L} : \mathfield{R}^d \to \mathfield{R}^d. \]
 This linear transformation is then used to compute squared distances as
-\[ \mathcal{D} \left( \mathvec{x}_i, \mathvec{x}_j \right) = \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert^2 \]
+\[ \phantom{.}\mathcal{D} \left( \mathvec{x}_i, \mathvec{x}_j \right) = \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert^2. \]
 
 A helper matrix \( \mathmat{y} \) is used such that
-\[ \mathmat{y}_{ij} = \begin{cases}
+\[ \phantom{.}\mathmat{y}_{ij} = \begin{cases}
 	0 &\text{for} \quad y_i \neq y_j \\
 	1 &\text{for} \quad y_i = y_j \\
-\end{cases} \]
+\end{cases}. \]
 In addition to this, for each input \( \mathvec{x}_i \), \( k \) target neighbours are defined that are supposed to be close to \( \mathvec{x}_i \). Euclidean distance may be used to find the target neighbours. A matrix \( \mathmat{\eta} \) is used to indicate target neighbours where \( \mathmat{\eta}_{ij} = 1 \) if \( \mathvec{x}_j \) is a target neighbour of \( \mathvec{x}_i \) and \( 0 \) else.
 
 The cost function features two competing terms. The first term depicts the notion that an input should be close to its target neighbours. The second term depicts the notion that inputs of a different class should be far from one another. The loss is of the form
 \begin{align*}
 	&\sum_{i, j = 1}^n \mathmat{\eta}_{ij} \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert^2 + c \sum_{i, j, l = 1}^n \mathmat{\eta}_{ij} \left( 1 - \mathmat{y}_{il} \right) \\
-	&\max \left( 0, 1 + \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert^2 - \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_l \right) \right\rVert^2 \right)
+	&\max \left( 0, 1 + \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_j \right) \right\rVert^2 - \left\lVert \mathvec{L} \left( \mathvec{x}_i - \mathvec{x}_l \right) \right\rVert^2 \right),
 \end{align*}
 where \( c > 0 \) is a hyper-parameter of this method.
 
 To adapt the original method, the definitions need to be modified to leverage the bagging of the data. The matrix \( \mathmat{y} \) is defined in the same way, only with labels on the level of bags. The value \( \mathmat{\eta}_{ij} = 1 \) iff the bag \( B_j \) is a target neighbour for the bag \( B_i \). Then, using the matrix \( \mathmat{D} \) defined in equation \ref{eq:bag-distance-matrix} directly instead of the linear transformation, the loss function can be expressed as
 
-\begin{align*}
-	L_\mathrm{triplet} = &\sum_{ij} \eta_{ij} D_{ij} + \\
-	+ c &\sum_{ijl} \eta_{ij} \left( 1 - y_{il} \right) \max \left( 0, 1 + D_{ij} - D_{il} \right)
-\end{align*}
-where \( c > 0 \) is again a hyper-parameter of the method. Although \cite{weinberger_distance_2006} suggest finding \( \mathmat{\eta} \) as the \( k \)-nearest neighbours of a data point, the loss has been simplified by setting \( \mathmat{\eta}_{ij} = \mathmat{y}_{ij} \) for \( i, j = 1, \dots, n \) in this work.
+\begin{align}
+	L_\mathrm{triplet} = &\sum_{ij} \eta_{ij} D_{ij} + \nonumber \\
+	+ c &\sum_{ijl} \eta_{ij} \left( 1 - y_{il} \right) \max \left( 0, 1 + D_{ij} - D_{il} \right),
+\end{align}
+where \( c > 0 \) is again a hyper-parameter of the method. Although \cite{weinberger_distance_2006} suggest finding \( \mathmat{\eta} \) as the \( k \)-nearest neighbours of a data point, the loss has been simplified by setting \( \mathmat{\eta}_{ij} = \mathmat{y}_{ij} \) for \( i, j = 1, \dots, n \) in this work, making all the neighbours of a cluster its target neighbours.
 
 \subsection{Magnet Loss}
 Magnet loss is an enhancement of the previously described triplet loss, first introduced by \cite{rippel_metric_2016}. Whereas the triplet loss function essentially goes over all triplets of a data point, its target neighbour and a point from a different class and optimizes their distances, magnet loss maintains an explicit model of the distributions of different classes in the representation space. To capture the distributions, the model uses simple clustering models for each class. Differently to triplet loss, for which the target neighbourhood is set \textit{a priori} and is based on similarity in the original input space, magnet loss uses similarity in the space of representations and updates it periodically. Magnet loss also pursues local separation instead of global -- representations of different classes should be separated, but can be interleaved.
 
 Let \( \left\{ \left( \mathvec{x}_i, y_i \right) \right\}_{i = 1}^n \) be a training dataset where \( \mathvec{x}_i \in \mathfield{R}^d \) and \( y_i \) are one of \( C \) discrete class labels. A general parameterized map \( \mathvec{f} \left( \cdot; \Theta \right) \) embeds the inputs into a representation space:
-\[ \mathvec{r}_i = \mathvec{f} \left( \mathvec{x}_i; \Theta \right) \]
+\[ \phantom{.}\mathvec{r}_i = \mathvec{f} \left( \mathvec{x}_i; \Theta \right). \]
 For each class \( c \), \( K \) cluster assignments are obtained with the K-means++ algorithm \cite{macqueen_methods_1967, arthur_k-means++:_2006} where \( K \in \mathfield{N} \) is a hyper-parameter of the method:
-\[ \mathcal{I}_1^c, \dots, \mathcal{I}_K^c = \argmin_{I_1^c, \dots, I_K^c} \sum_{k = 1}^K \sum_{\mathvec{r} \in I_k^c} \left\lVert \mathvec{r} - \frac{1}{\left\lvert I_k^c \right\rvert} \sum_{\mathvec{s} \in I_k^c} \mathvec{s} \right\rVert^2 \]
-the centre of each cluster is denoted \( \mathvec{\mu}_k^c \):
-\[ \mathvec{\mu}_k^c = \frac{1}{\left\lvert \mathcal{I}_k^c \right\rvert} \sum_{\mathvec{r} \in \mathcal{I}_k^c} \mathvec{r} \]
+\[ \phantom{.}\mathcal{I}_1^c, \dots, \mathcal{I}_K^c = \argmin_{I_1^c, \dots, I_K^c} \sum_{k = 1}^K \sum_{\mathvec{r} \in I_k^c} \left\lVert \mathvec{r} - \frac{1}{\left\lvert I_k^c \right\rvert} \sum_{\mathvec{s} \in I_k^c} \mathvec{s} \right\rVert^2. \]
+The centre of each cluster is denoted \( \mathvec{\mu}_k^c \):
+\[ \phantom{.}\mathvec{\mu}_k^c = \frac{1}{\left\lvert \mathcal{I}_k^c \right\rvert} \sum_{\mathvec{r} \in \mathcal{I}_k^c} \mathvec{r}. \]
 For each input, the centre of the cluster in which its representation falls is denoted as
 \[ \mathvec{\mu}_i = \argmin_{\mathvec{\mu_k^c}} \left\lVert \mathvec{r}_i - \mathvec{\mu}_k^c \right\rVert \]
-and the distance of its representation from the centre of the cluster is denoted as
-\[ N_i = \left\lVert \mathvec{r}_i - \mathvec{\mu}_i \right\rVert^2 \]
+and the squared distance of its representation from the centre of the cluster is denoted as
+\[ \phantom{.}N_i = \left\lVert \mathvec{r}_i - \mathvec{\mu}_i \right\rVert^2. \]
 The variance of the distance of the representations from their respective centres can then be calculated as
-\[ \sigma^2 = \frac{1}{n - 1} \sum_{i = 1}^n N_i \]
+\[ \phantom{.}\sigma^2 = \frac{1}{n - 1} \sum_{i = 1}^n N_i. \]
 For \( r_i \), the dissimilarity to all the inputs of different classes is calculated as
-\[ M_i = \sum_{c \neq y_i} \sum_{k = 1}^K \exp \left( - \frac{1}{2 \sigma^2} \left\lVert \mathvec{r}_i - \mathvec{\mu}_k^c \right\rVert^2 \right) \]
+\[ \phantom{.}M_i = \sum_{c \neq y_i} \sum_{k = 1}^K \exp \left( - \frac{1}{2 \sigma^2} \left\lVert \mathvec{r}_i - \mathvec{\mu}_k^c \right\rVert^2 \right). \]
 The magnet loss is then defined as
-\[ L_\mathrm{magnet} = \frac{1}{n} \sum_{i = 1}^n \max \left( 0, 1 + \log \frac{\exp \left( - \frac{1}{2 \sigma^2} N_i - \alpha \right)}{M_i} \right) \]
+\begin{equation}
+	\phantom{,}L_\mathrm{magnet} = \frac{1}{n} \sum_{i = 1}^n \max \left( 0, 1 + \log \frac{\exp \left( - \frac{1}{2 \sigma^2} N_i - \alpha \right)}{M_i} \right),
+\end{equation}
 where \( \alpha \in \mathfield{R} \) is a hyper-parameter of the method. Since the method standardizes both of the terms of the innermost fraction by \( \sigma^2 \), \( \alpha \) is the desired cluster separation gap expressed in the units of the variance.
 
 The magnet loss is taken almost verbatim from the original article. The only change needed is a different way to obtain the representation space by taking
-\[ \mathvec{r}_i = \phi \left( B_i \right) \]
+\[ \phantom{.}\mathvec{r}_i = \phi \left( B_i \right). \]
 In this usage, \( y_i \) is the class label assigned to the bag \( B_i \) (making magnet loss a supervised method) and \( n \) is the number of bags in the dataset.
 
 Due to the choice of the hyper-parameter \( K \) being non-obvious for most problems, alternative clustering methods that would not need hyper-parameter tuning were explored. One such method, \name{self-tuning spectral clustering} \cite{zelnik-manor_self-tuning_2005} was implemented as a replacement for the K-means algorithm used in the original method. Section \ref{sec:experiment-comparison} presents a comparison of the performance of these two methods.
 
-Since magnet loss is an enhancement of triplet loss, it is reasonable to assume it would perform the same or better than triplet loss. One drawback of magnet loss is the higher number of hyper-parameters which need to be tuned in order for the method to work correctly. This problem is partially solved by the introduction of self-tuning spectral clustering.
+Since magnet loss is an enhancement of triplet loss, it is reasonable to assume it would perform the same or better than triplet loss. One drawback of magnet loss is the higher number of hyper-parameters which need to be tuned in order for the method to work correctly. This problem is partially solved by the introduction of self-tuning spectral clustering \cite{zelnik-manor_self-tuning_2005}, however, that is outside the scope of this paper.
